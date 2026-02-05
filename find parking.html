@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parking Areas in Ambala City</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Leaflet Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+}
+header {
+  background: #1f4ed8;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+#map {
+  height: 450px;
+}
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #1f4ed8, #2563eb);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.logo span {
+  margin-left: 6px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #e0e7ff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+  border-bottom: 2px solid #fff;
+  padding-bottom: 4px;
+}
+
+/* Mobile Friendly */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.parking-card {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.parking-card h3 {
+  margin-top: 0;
+  color: #1f4ed8;
+}
+footer {
+  background: #111;
+  color: #ccc;
+  text-align: center;
+  padding: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">
+      🅿️ <span>Ambala Parking</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#map">Map</a></li>
+      <li><a href="#parkingList">Parking Areas</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+<div id="map"></div>
+
+<div class="container">
+  <h2>Available Parking Locations</h2>
+  <div class="parking-grid" id="parkingList"></div>
+</div>
+
+<footer>
+© 2026 Ambala Parking Information Portal
+</footer>
+
+<script>
+const parkingData = [
+  {name:"Ambala City Railway Station Parking",lat:30.3781,lng:76.7649,address:"Old Town, Ambala"},
+  {name:"Sadar Multilevel Parking",lat:30.3366,lng:76.8353,address:"Nicholson Road, Ambala Cantt"},
+  {name:"Kapra Market Parking",lat:30.3849,lng:76.7667,address:"Kapra Market"},
+  {name:"Arora Car Parking",lat:30.3865,lng:76.7628,address:"Circular Road"},
+  {name:"Shalimar Market Parking",lat:30.3856,lng:76.7602,address:"Shalimar Market"},
+  {name:"Ambala Bank Parking Yard",lat:30.3873,lng:76.7619,address:"Bans Mohalla"},
+  {name:"Ambala Cantt Bus Stand Parking",lat:30.3404,lng:76.8297,address:"Lal Kurti"},
+  {name:"Bhagwati Cycle Stand",lat:30.3412,lng:76.8309,address:"Lawrence Road"},
+  {name:"Saini Parking",lat:30.3395,lng:76.8285,address:"Lal Kurti"},
+  {name:"Ambala Haveli Parking",lat:30.3308,lng:76.8209,address:"Ambala Cantt"}
+];
+
+const map = L.map('map').setView([30.3752, 76.7821], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+parkingData.forEach(p => {
+  L.marker([p.lat, p.lng]).addTo(map)
+    .bindPopup(`<b>${p.name}</b><br>${p.address}`);
+});
+
+const list = document.getElementById("parkingList");
+parkingData.forEach(p => {
+  list.innerHTML += `
+    <div class="parking-card">
+      <h3>${p.name}</h3>
+      <p>${p.address}</p>
+      <a target="_blank" href="https://maps.google.com/?q=${p.lat},${p.lng}">
+        Open in Google Maps
+      </a>
+    </div>
+  `;
+});
+</script>
+
+</body>
+</html>

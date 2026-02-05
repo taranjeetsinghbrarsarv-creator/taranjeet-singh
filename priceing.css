@@ -1,0 +1,130 @@
+/* General Body Settings */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+/* Header Section */
+.header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+h1 {
+    color: #1a2a44;
+    font-size: 36px;
+    margin: 0;
+}
+
+.subtitle {
+    color: #3498db;
+    font-weight: 500;
+}
+
+/* Container for Cards */
+.pricing-container {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Mobile friendly banane ke liye */
+    max-width: 1200px;
+}
+
+/* Basic Card Design */
+.card {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    width: 280px;
+    padding: 35px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+/* Hover Effect - Mouse le jane par card upar uthega */
+.card:hover {
+    transform: translateY(-10px);
+}
+
+/* Featured (Middle) Card Styling */
+.card.featured {
+    border: 2px solid #3498db;
+    transform: scale(1.08);
+    z-index: 1;
+}
+
+.card.featured:hover {
+    transform: scale(1.10) translateY(-10px);
+}
+
+/* Premium Card Styling */
+.card.premium {
+    background-color: #1a2a44;
+    color: #ffffff;
+}
+
+/* Icons, Price & Buttons */
+.icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.price {
+    font-size: 32px;
+    font-weight: bold;
+    color: #3498db;
+    margin: 15px 0;
+}
+
+.premium .price {
+    color: #ffffff;
+}
+
+.price span {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0;
+    line-height: 2.2;
+    color: #555;
+}
+
+.premium .features {
+    color: #cbd5e0;
+}
+
+.btn {
+    background-color: #1a2a44;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+}
+
+.premium .btn {
+    background-color: #3498db;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Footer Section */
+.footer {
+    margin-top: 50px;
+    color: #718096;
+}

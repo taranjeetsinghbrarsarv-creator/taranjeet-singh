@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Available Parking Slots</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --primary:#1f4ed8;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --text:#0f172a;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+  color:var(--text);
+}
+
+.header{
+  background:linear-gradient(135deg,#1f4ed8,#2563eb);
+  color:#fff;
+  padding:22px;
+  text-align:center;
+  font-size:24px;
+  font-weight:600;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:24px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:22px;
+}
+
+.slot{
+  background:var(--card);
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  transition:.3s;
+  position:relative;
+}
+
+.slot::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:6px;
+  background:var(--success);
+}
+
+.slot.booked::before{ background:var(--danger); }
+
+.slot:hover{
+  transform:translateY(-5px);
+}
+
+.slot h3{
+  margin:0;
+  color:var(--primary);
+}
+
+.slot p{
+  margin:6px 0;
+  font-size:14px;
+  opacity:.8;
+}
+
+.tags{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
+
+.tag{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#e0e7ff;
+}
+
+.price{
+  font-size:16px;
+  font-weight:600;
+}
+
+.slot button{
+  margin-top:14px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.slot button:disabled{
+  background:#9ca3af;
+  cursor:not-allowed;
+}
+
+.badge{
+  position:absolute;
+  top:14px;
+  right:14px;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  color:white;
+}
+
+.available .badge{ background:var(--success); }
+.booked .badge{ background:var(--danger); }
+</style>
+</head>
+
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Available Parking Slots</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --primary:#1f4ed8;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --text:#0f172a;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+  background:linear-gradient(135deg,#1e3a8a,#2563eb,#1e40af);
+  padding:14px 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  animation:slideDown .8s ease;
+}
+
+@keyframes slideDown{
+  from{ transform:translateY(-100%); opacity:0 }
+  to{ transform:translateY(0); opacity:1 }
+}
+
+.logo{
+  color:#fff;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+.nav-links{
+  display:flex;
+  gap:26px;
+}
+
+.nav-links a{
+  position:relative;
+  color:#e0e7ff;
+  text-decoration:none;
+  font-size:15px;
+  padding:6px 0;
+  transition:.3s;
+}
+
+.nav-links a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-4px;
+  width:0;
+  height:2px;
+  background:#fff;
+  transition:.3s;
+}
+
+.nav-links a:hover{
+  color:#fff;
+}
+
+.nav-links a:hover::after{
+  width:100%;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+  color:var(--text);
+}
+
+.header{
+  background:linear-gradient(135deg,#1f4ed8,#2563eb);
+  color:#fff;
+  padding:22px;
+  text-align:center;
+  font-size:24px;
+  font-weight:600;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:24px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:22px;
+}
+
+.slot{
+  background:var(--card);
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  transition:.3s;
+  position:relative;
+}
+
+.slot::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:6px;
+  background:var(--success);
+}
+
+.slot.booked::before{ background:var(--danger); }
+
+.slot:hover{
+  transform:translateY(-6px) scale(1.02);
+}
+
+.slot h3{
+  margin:0;
+  color:var(--primary);
+}
+
+.slot p{
+  margin:6px 0;
+  font-size:14px;
+  opacity:.8;
+}
+
+.tags{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
+
+.tag{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#e0e7ff;
+}
+
+.price{
+  font-size:16px;
+  font-weight:600;
+}
+
+.slot button{
+  margin-top:14px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.slot button:hover{
+  box-shadow:0 10px 20px rgba(37,99,235,.5);
+}
+
+.slot button:disabled{
+  background:#9ca3af;
+  cursor:not-allowed;
+}
+
+.badge{
+  position:absolute;
+  top:14px;
+  right:14px;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  color:white;
+}
+
+.available .badge{ background:var(--success); }
+.booked .badge{ background:var(--danger); }
+</style>
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="logo">🅿️ Smart Parking</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="#">Slots</a>
+    <a href="#">Bookings</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="grid" id="slotGrid"></div>
+</div>
+
+<!-- ===== YOUR JS CODE (UNCHANGED) ===== -->
+<script>
+  /* YOUR EXISTING SCRIPT — NO CHANGES */
+</script>
+
+</body>
+</html>
+
+<header class="header">🅿️ Select Parking Slot</header>
+
+<div class="container">
+  <div class="grid" id="slotGrid"></div>
+</div>
+
+<script>
+const parkingSlots = [
+  { id:1, name:"Ambala City Railway Station", address:"Old Town", price:40, vehicle:"Car/Bike", available:true },
+  { id:2, name:"Sadar Multilevel Parking", address:"Ambala Cantt", price:60, vehicle:"Car", available:true },
+  { id:3, name:"Kapra Market Parking", address:"Kapra Market", price:30, vehicle:"Bike", available:true },
+  { id:4, name:"Shalimar Market Parking", address:"City Center", price:50, vehicle:"Car/Bike", available:true },
+
+  /* ===== NEW SLOTS ADDED BELOW ===== */
+
+  { id:5, name:"Bus Stand Parking", address:"Main Bus Stand", price:35, vehicle:"Car/Bike", available:true },
+  { id:6, name:"Civil Hospital Parking", address:"Hospital Road", price:25, vehicle:"Bike", available:true },
+  { id:7, name:"Court Complex Parking", address:"Judicial Complex", price:45, vehicle:"Car", available:true },
+  { id:8, name:"Mall Road Parking", address:"Mall Road", price:70, vehicle:"Car/Bike", available:true },
+  { id:9, name:"Wholesale Market Parking", address:"Anaj Mandi", price:30, vehicle:"Bike", available:true },
+  { id:10, name:"IT Park Parking", address:"Tech Zone", price:80, vehicle:"Car", available:true },
+  { id:11, name:"University Parking", address:"Campus Area", price:20, vehicle:"Bike", available:true },
+  { id:12, name:"Stadium Parking", address:"Sports Complex", price:50, vehicle:"Car/Bike", available:true }
+];
+
+// ===== LOAD & CLEAN BOOKINGS =====
+let bookings = JSON.parse(localStorage.getItem("slots")) || [];
+const now = Date.now();
+
+bookings = bookings.filter(b => b.expiresAt > now);
+localStorage.setItem("slots", JSON.stringify(bookings));
+
+bookings.forEach(b=>{
+  const slot = parkingSlots.find(p=>p.id === b.id);
+  if(slot) slot.available = false;
+});
+
+// ===== RENDER SLOTS =====
+const grid = document.getElementById("slotGrid");
+grid.innerHTML = "";
+
+parkingSlots.forEach(slot=>{
+  grid.innerHTML += `
+    <div class="slot ${slot.available?'available':'booked'}">
+      <span class="badge">${slot.available?'Available':'Booked'}</span>
+      <h3>${slot.name}</h3>
+      <p>${slot.address}</p>
+
+      <div class="tags">
+        <span class="tag">🚗 ${slot.vehicle}</span>
+        <span class="tag">⏱ Hourly</span>
+        <span class="tag">🛡 Secure</span>
+      </div>
+
+      <div class="price">₹ ${slot.price} / hour</div>
+
+      <button ${!slot.available?'disabled':''}
+        onclick="bookSlot(${slot.id})">
+        ${slot.available?'Book Slot':'Not Available'}
+      </button>
+    </div>
+  `;
+});
+
+// ===== BOOK SLOT WITH TIME =====
+
+function bookSlot(id){
+  const name = prompt("Enter your name:");
+  if(!name){
+    alert("Name is required");
+    return;
+  }
+
+  const mobile = prompt("Enter your mobile number:");
+  if(!mobile){
+    alert("Mobile number is required");
+    return;
+  }
+
+  const vehicleNo = prompt("Enter your vehicle number:");
+  if(!vehicleNo){
+    alert("Vehicle number is required");
+    return;
+  }
+
+  const hours = prompt("Enter booking duration in hours (e.g. 1, 5, 24):");
+  if(!hours || hours <= 0){
+    alert("Invalid time");
+    return;
+  }
+
+  const expiresAt = Date.now() + hours * 60 * 60 * 1000;
+
+  bookings.push({
+    id,
+    name,
+    mobile,
+    vehicleNo,
+    hours,
+    expiresAt
+  });
+
+  localStorage.setItem("slots", JSON.stringify(bookings));
+
+  alert(
+    "Slot Booked Successfully!\n\n" +
+    "Name: " + name + "\n" +
+    "Mobile: " + mobile + "\n" +
+    "Vehicle No: " + vehicleNo + "\n" +
+    "Duration: " + hours + " hours"
+  );
+
+  location.reload();
+}
+  if (!localStorage.getItem("loggedIn")) {
+    alert("Please login first!");
+    window.location.href = "index.html";
+  }
+  
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    alert("🔒 Please login to access parking slots.");
+    window.location.href = "index.html";
+  }
+
+
+  
+</script>
+
+
+  
+</script>
+
+</body>
+</html>

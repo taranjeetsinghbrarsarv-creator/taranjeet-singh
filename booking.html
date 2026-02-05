@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Book Parking Slot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#eef2ff,#f8fafc);
+}
+
+.header {
+  background: #1f4ed8;
+  color: #fff;
+  padding: 18px;
+  text-align: center;
+  font-size: 22px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 18px;
+}
+
+.slot {
+  background: #fff;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: transform .3s, box-shadow .3s;
+  animation: fadeIn .6s ease;
+}
+
+.slot:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.15);
+}
+
+.slot.available { border-left: 6px solid #16a34a; }
+.slot.booked { border-left: 6px solid #dc2626; opacity: .6; }
+
+.slot button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.slot button:disabled {
+  background: gray;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.1);
+  animation: slideUp .5s ease;
+}
+
+input, button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:scale(.95);}
+  to {opacity:1; transform:scale(1);}
+}
+
+@keyframes slideUp {
+  from {transform:translateY(40px); opacity:0;}
+  to {transform:translateY(0); opacity:1;}
+}
+
+</style>
+</head>
+
+<body>
+<header class="header">📋 Slot Booking</header>
+
+<div class="container card">
+  <h2 id="slotName"></h2>
+  <p id="slotAddress"></p>
+
+  <form id="bookingForm">
+    <input type="text" placeholder="Your Name" required>
+    <input type="text" placeholder="Vehicle Number" required>
+    <input type="time" required>
+    <button type="submit">Confirm Booking</button>
+  </form>
+
+  <p id="successMsg"></p>
+</div>
+
+<script>
+    const parkingSlots = [
+  { id:1, name:"Ambala City Railway Station", address:"Old Town", available:true },
+  { id:2, name:"Sadar Multilevel Parking", address:"Ambala Cantt", available:true },
+  { id:3, name:"Kapra Market Parking", address:"Kapra Market", available:true },
+  { id:4, name:"Shalimar Market Parking", address:"City Center", available:true }
+];
+
+// Load saved bookings
+const saved = JSON.parse(localStorage.getItem("slots"));
+if(saved) saved.forEach(s => {
+  const slot = parkingSlots.find(p => p.id === s.id);
+  if(slot) slot.available = false;
+});
+
+// Slots Page
+if(document.getElementById("slotGrid")) {
+  const grid = document.getElementById("slotGrid");
+  parkingSlots.forEach(slot => {
+    grid.innerHTML += `
+      <div class="slot ${slot.available ? 'available':'booked'}">
+        <h3>${slot.name}</h3>
+        <p>${slot.address}</p>
+        <button ${!slot.available?'disabled':''}
+        onclick="bookSlot(${slot.id})">
+        ${slot.available?'Book Now':'Booked'}
+        </button>
+      </div>
+    `;
+  });
+}
+
+function bookSlot(id){
+  localStorage.setItem("selectedSlot", id);
+  window.location.href="booking.html";
+}
+
+// Booking Page
+if(document.getElementById("bookingForm")){
+  const id = localStorage.getItem("selectedSlot");
+  const slot = parkingSlots.find(s=>s.id==id);
+
+  document.getElementById("slotName").innerText = slot.name;
+  document.getElementById("slotAddress").innerText = slot.address;
+
+  document.getElementById("bookingForm").onsubmit = e => {
+    e.preventDefault();
+    slot.available = false;
+
+    const booked = JSON.parse(localStorage.getItem("slots")) || [];
+    booked.push(slot);
+    localStorage.setItem("slots", JSON.stringify(booked));
+
+    document.getElementById("successMsg").innerText =
+      "✅ Slot booked successfully!";
+  };
+}
+
+</script>
+</body>
+</html>

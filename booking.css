@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+body {
+    background: linear-gradient(120deg, #1d2671, #c33764);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main Card */
+.container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* Form */
+.booking-form .form-group {
+    margin-bottom: 15px;
+}
+
+.booking-form label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.booking-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.booking-form input:focus {
+    outline: none;
+    border-color: #1d2671;
+}
+
+/* Slots */
+.slot-section h3 {
+    margin: 15px 0 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.slot-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.slot {
+    padding: 12px 0;
+    text-align: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Slot Status */
+.available {
+    background-color: #28a745;
+    cursor: pointer;
+}
+
+.booked {
+    background-color: #dc3545;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.selected {
+    background-color: #ff9800;
+}
+
+/* Button */
+.btn-book {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: #1d2671;
+    color: #fff;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-book:hover {
+    background: #141b5f;
+}

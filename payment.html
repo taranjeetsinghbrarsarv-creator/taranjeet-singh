@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payment</title>
+<style>
+body{
+    font-family: Segoe UI, sans-serif;
+    background: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.box{
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 350px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+}
+button{
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:hover{
+    background: #1e40af;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Payment Details</h2>
+    <p id="details"></p>
+    <p><b>Name:</b> <span id="name"></span></p>
+     <p><b>Mobile:</b> <span id="mobile"></span></p>
+      <p><b>Vehical:</b> <span id="vehicle"></span></p>
+       <p><b>Select Slot:</b> <span id="slot"></span></p>
+
+    <button onclick="payNow()">Pay Now</button>
+</div>
+
+<script>
+    document.getElementById("name").innerText=localStorage.getItem("name");
+     document.getElementById("moblie").innerText=localStorage.getItem("moblie");
+      document.getElementById("name").innerText=localStorage.getItem("name");
+       document.getElementById("name").innerText=localStorage.getItem("name");
+
+//  const params = new URLSearchParams(window.location.search);
+
+// document.getElementById("details").innerHTML ="My booking.html"
+//     "<strong>Name:</strong> " + params.get("name") + "<br>" +
+//     "<strong>Vehicle:</strong> " + params.get("vehicle") + "<br>" +
+//     "<strong>Slot:</strong> " + params.get("slot") + "<br><br>" +
+//     "<strong>Amount:</strong> ₹100";
+
+function payNow(){
+    alert("Payment Successful ✅");
+    window.location.href = "success.html";
+}
+</script>
+
+</body>
+</html>

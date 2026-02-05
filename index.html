@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="project.css">
+</head>
+<body>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="brar.png" alt="logo">
+      </div>
+      <ul class="menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="find parking.html">Find Parking</a></li>
+        
+        <li><a href="slots.html">Slots</a></li>
+        
+        <li><a href="Contact.html">Contact</a></li> 
+      </ul>
+
+    <div class="auth-buttons">
+  <button class="register">Register</button>
+  <button class="login">Login</button>
+</div>  
+     </nav>
+
+<section class="hero">
+  <div class="slider">
+    <img src="https://images.unsplash.com/photo-1710905283648-252d5711802c?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide active">
+    <img src="https://images.unsplash.com/photo-1597985933882-b4c6a08857a8?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide">
+    <img src="https://images.unsplash.com/photo-1720166671019-744dcef65d05?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide">
+    <img src="https://static.vecteezy.com/system/resources/thumbnails/009/694/013/original/aerial-view-high-angle-footage-of-modern-car-park-in-the-building-and-roof-top-at-city-centre-of-luton-town-of-england-uk-video.jpg" class="slide">
+  </div>
+
+  <div class="hero-content">
+    <h1>Safe & Secure Parking System</h1>
+    <p>Book Smart Parking in Seconds – Anywhere in Ambala</p>
+    <button class="btn"><a href="slots.html">Book Now</a></button>
+  </div>
+</section>
+
+<section class="feature">
+  <div class="box">
+    <h3>Easy Booking</h3>
+    <p>Book parking in just 2 clicks</p>  
+  </div>
+
+  <div class="box">
+    <h3>24/7 Security</h3>
+    <p>CCTV & Guard Protection</p>
+  </div>
+
+  <div class="box">
+    <h3>Live Availability</h3>
+    <p>Check slots in real time</p>
+  </div>
+</section>
+<section class="about-system">
+  <h2>About Online Parking System</h2>
+  <p class="about-text">
+    The Online Parking System is a smart web-based solution designed to help users
+    find and book parking slots easily. This system reduces traffic congestion,
+    saves time, and provides a safe and secure parking experience for vehicle owners.
+  </p>
+
+  <div class="about-cards">
+    <div class="about-box">
+      <h3>🚗 Problem</h3>
+      <p>
+        Finding parking in busy areas is time-consuming and stressful.
+        Drivers often waste fuel and time searching for available slots.
+      </p>
+    </div>
+
+    <div class="about-box">
+      <h3>💡 Solution</h3>
+      <p>
+        Our Online Parking System allows users to check live availability,
+        reserve parking slots online, and park without hassle.
+      </p>
+    </div>
+
+    <div class="about-box">
+      <h3>🎯 Objective</h3>
+      <p>
+        To provide a simple, fast, and secure parking management system
+        for smart cities and modern infrastructure.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- Register Popup Modal -->
+<div id="registerModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Register</h2>
+
+    <form id="registerForm">
+      <input type="text" placeholder="Full Name" required>
+      <input type="email" placeholder="Email" required>
+      <input type="tel" placeholder="Phone Number" required>
+      <input type="password" placeholder="Password" required>
+
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+</div>
+
+<!-- Success Popup -->
+<div id="successModal" class="modal">
+  <div class="modal-content">
+    <h2>🎉 Registration Successful!</h2>
+    <p>Your details have been submitted.</p>
+    <button id="okBtn" class="submit-btn">OK</button>
+  </div>
+</div>
+
+<!-- Login Popup Modal -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <span class="close login-close">&times;</span>
+    <h2>Login</h2>
+
+    <form id="loginForm">
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+
+      <button type="submit" class="submit-btn">Login</button>
+    </form>
+  </div>
+</div>
+
+
+     <footer>2026 Online Parking System
+      <div class="developer">
+      <p class="develop">Developer with by <span>[Taranjeet Singh]</span></p>
+      </div>
+     </footer>
+     
+
+     <script src="project.js"></script>
+</body>
+</html>
