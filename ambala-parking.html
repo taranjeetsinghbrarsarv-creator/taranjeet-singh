@@ -1,27 +1,572 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Ambala Parking Areas</title>
-  <link rel="stylesheet" href="project.css">
+<meta charset="UTF-8">
+<title>Parking Areas in Ambala City | BRAR Parking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+:root {
+  --primary: #1f4ed8;
+  --secondary: #2563eb;
+  --dark-bg: #0b1c2d;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f4f8;
+  color: #333;
+}
+
+/* ===== MODERN FIXED NAVBAR WITH GLASS EFFECT ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 4px 20px rgba(31, 78, 216, 0.25);
+  z-index: 2000;
+  box-sizing: border-box;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #e0e7ff;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 6px 0;
+  transition: 0.3s;
+  position: relative;
+}
+
+.nav-links a:hover {
+  color: white;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #00c896;
+  transition: 0.3s;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ===== 3 LINES HAMBURGER TOGGLE ===== */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 2100;
+}
+
+.menu-toggle span {
+  width: 28px;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+  transition: 0.3s ease-in-out;
+}
+
+/* Hamburger animations open state */
+.menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -7px);
+}
+
+/* ===== LAYOUT & MAP ADJUSTMENTS ===== */
+#map {
+  height: 480px;
+  margin-top: 72px;
+  border-bottom: 4px solid var(--secondary);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 24px;
+}
+
+.container h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dark-bg);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+/* ===== GLASSMORPHISM FILTER BOX ===== */
+.filter-box {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.filter-box label {
+  font-size: 16px;
+  color: #4b5563;
+}
+
+select {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  background-color: white;
+  color: #1e293b;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== PREMIUM PARKING GRID & CARDS ===== */
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.parking-card {
+  background: white;
+  padding: 24px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.parking-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(31, 78, 216, 0.12);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.parking-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 19px;
+  color: var(--primary);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.parking-card p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+/* Dynamic Button View */
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: 0.2s ease;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.parking-card var {
+  font-style: normal;
+}
+
+.map-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* ===== HIGH LEVEL FOOTER ===== */
+.footer {
+  background: var(--dark-bg);
+  color: #ffffff;
+  padding: 60px 0 20px;
+  margin-top: 80px;
+}
+
+.footer-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 220px;
+}
+
+.footer-logo {
+  color: #00c896;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.footer-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #f8fafc;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.footer-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: #00c896;
+}
+
+.footer-section p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+  text-decoration: none;
+  color: #94a3b8;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.footer-section ul li a:hover {
+  color: #00c896;
+  padding-left: 4px;
+}
+
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid #1e3a5f;
+  padding-top: 20px;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* ===== MOBILE VIEW RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(135deg, #1f4ed8, #2563eb);
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+  }
+
+  .nav-links.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-links li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 16px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .nav-links a::after {
+    display: none;
+  }
+
+  #map {
+    height: 380px;
+  }
+  
+  .container h2 {
+    font-size: 24px;
+  }
+}
+</style>
 </head>
+
 <body>
 
-<h1 style="text-align:center;">Parking Areas in Ambala</h1>
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">
+      🅿️ Ambala Parking
+    </div>
 
-<div class="parking-list">
-  <div class="area">Ambala Cantt Railway Station</div>
-  <div class="area">Jagadhri Gate Market</div>
-  <div class="area">Civil Hospital Ambala</div>
-  <div class="area">City Bus Stand</div>
-  <div class="area">Mall Road Parking</div>
+    <div class="menu-toggle" id="mobileMenu" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.php">Home</a></li>
+      <li><a href="#map">Map</a></li>
+      <li><a href="#parkingList">Parking Areas</a></li>
+      <li><a href="contact.php">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div id="map"></div>
+
+<div class="container">
+  <h2>Available Parking Locations</h2>
+
+  <div class="filter-box">
+    <label><b>Select Area:</b></label>
+    <select id="areaFilter">
+      <option value="all">All Areas</option>
+      <option value="city">Ambala City</option>
+      <option value="cantt">Ambala Cantt</option>
+    </select>
+  </div>
+
+  <div class="parking-grid" id="parkingList"></div>
 </div>
 
-<iframe 
-  src="https://www.google.com/maps?q=Ambala+parking&output=embed"
-  width="100%" 
-  height="450"
-  style="border:0;">
-</iframe>
+<footer class="footer">
+    <div class="footer-container">
+
+        <div class="footer-section">
+            <h2 class="footer-logo">BRAR Parking</h2>
+            <p>Find and book parking slots easily in Ambala. Save time and avoid parking stress.</p>
+        </div>
+
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="am.php">Find Parking</a></li>
+                <li><a href="s.php">Slots</a></li>
+                <li><a href="contact.php">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3>Parking Areas</h3>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 2;">
+               • Ambala Cantt<br>
+               • Ambala City<br>
+               • Railway Station<br>
+               • Bus Stand
+            </p>
+        </div>
+
+        <div class="footer-section">
+            <h3>Contact</h3>
+            <p>Email: support@brarparking.com</p>
+            <p style="margin-top: 8px;">Phone: +91 98765 43210</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 BRAR Parking. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+const parkingData = [
+  /* ===== AMBALA CITY LOCATIONS ===== */
+  {name:"Ambala City Railway Station Parking",lat:30.3781,lng:76.7649,address:"Old Town, Ambala City",area:"city"},
+  {name:"Kapra Market Parking Area",lat:30.3849,lng:76.7667,address:"Kapra Market, Near Old Civil Hospital, Ambala City",area:"city"},
+  {name:"Arora Car Parking Hub",lat:30.3865,lng:76.7628,address:"Circular Road, Near Patel Road, Ambala City",area:"city"},
+  {name:"Shalimar Market Multi-Slot Parking",lat:30.3856,lng:76.7602,address:"Shalimar Market Complex, Ambala City",area:"city"},
+  {name:"Ambala Bank Parking Yard",lat:30.3873,lng:76.7619,address:"Bans Mohalla, Near Main Bazaar, Ambala City",area:"city"},
+  {name:"Civil Hospital Visitor Parking",lat:30.3825,lng:76.7681,address:"Civil Hospital Road, Sector 1, Ambala City",area:"city"},
+  {name:"Aggarsain Chowk Parking Lot",lat:30.3812,lng:76.7654,address:"Aggarsain Chowk Outer Ring, Ambala City",area:"city"},
+  {name:"District Court & Session Complex Parking",lat:30.3798,lng:76.7695,address:"District Court Premises, Ambala City",area:"city"},
+  {name:"Model Town Central Parking Area",lat:30.3836,lng:76.7720,address:"Model Town Main Market, Ambala City",area:"city"},
+  {name:"Baldev Nagar Commercial Parking",lat:30.3901,lng:76.7705,address:"Near National Highway, Baldev Nagar, Ambala City",area:"city"},
+  {name:"Prem Nagar Community Parking Lot",lat:30.3745,lng:76.7592,address:"Prem Nagar Housing Block, Ambala City",area:"city"},
+  {name:"Polytechnic Chowk Public Parking",lat:30.3712,lng:76.7761,address:"Near Government Polytechnic, Ambala City",area:"city"},
+  {name:"Inco Market Business Parking",lat:30.3888,lng:76.7640,address:"Inco Market Complex, Ambala City",area:"city"},
+  {name:"Devi Mandir Area Parking Stand",lat:30.3805,lng:76.7580,address:"Near Historic Devi Mandir, Ambala City",area:"city"},
+  {name:"Cloth Market Base Parking Zone",lat:30.3851,lng:76.7652,address:"Wholesale Cloth Market Lane, Ambala City",area:"city"},
+
+  /* ===== AMBALA CANTT LOCATIONS ===== */
+  {name:"Sadar Multilevel Smart Parking",lat:30.3366,lng:76.8353,address:"Nicholson Road, Sadar Bazaar, Ambala Cantt",area:"cantt"},
+  {name:"Ambala Cantt Junction Bus Stand Parking",lat:30.3404,lng:76.8297,address:"Lal Kurti, Near National Highway, Ambala Cantt",area:"cantt"},
+  {name:"Bhagwati Cycle & Car Stand",lat:30.3412,lng:76.8309,address:"Lawrence Road, Commercial Block, Ambala Cantt",area:"cantt"},
+  {name:"Saini Auto & Car Parking",lat:30.3395,lng:76.8285,address:"Lal Kurti Main Lane, Ambala Cantt",area:"cantt"},
+  {name:"Ambala Haveli & Food Complex Parking",lat:30.3308,lng:76.8209,address:"GT Road Highway Node, Ambala Cantt",area:"cantt"},
+  {name:"Mall Road VIP Parking Zone",lat:30.3382,lng:76.8340,address:"Mall Road Promenade, Ambala Cantt",area:"cantt"},
+  {name:"Army Cantonment Area Visitor Parking",lat:30.3321,lng:76.8263,address:"Defense Colony Entry Gate, Ambala Cantt",area:"cantt"},
+  {name:"Gol Chowk Shopping Parking Hub",lat:30.3370,lng:76.8315,address:"Gol Chowk Market Circle, Ambala Cantt",area:"cantt"},
+  {name:"Railway Colony North Parking Ground",lat:30.3430,lng:76.8362,address:"Railway Colony Main Gate, Ambala Cantt",area:"cantt"},
+  {name:"Jagadhri Gate Transit Parking Stand",lat:30.3354,lng:76.8330,address:"Jagadhri Gate Crossing, Ambala Cantt",area:"cantt"},
+  {name:"Mahesh Nagar Main Market Parking",lat:30.3295,lng:76.8450,address:"Mahesh Nagar Commercial Lane, Ambala Cantt",area:"cantt"},
+  {name:"Staff Road Institutional Parking",lat:30.3415,lng:76.8395,address:"Near Cantonment Board Office, Ambala Cantt",area:"cantt"},
+  {name:"Baby Yalma Chowk Public Parking Area",lat:30.3340,lng:76.8290,address:"Baby Yalma Chowk Complex, Ambala Cantt",area:"cantt"},
+  {name:"Sirhind Club Elite Parking Stand",lat:30.3361,lng:76.8410,address:"Near Club Avenue Roads, Ambala Cantt",area:"cantt"},
+  {name:"Cross Road Commercial Plaza Parking",lat:30.3389,lng:76.8375,address:"Cross Road No. 2, Sadar, Ambala Cantt",area:"cantt"}
+];
+
+const map = L.map('map').setView([30.3550, 76.8000], 12); // Adjusted center to balance both City and Cantt views
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+let markers = [];
+
+function displayParking(area) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  const list = document.getElementById("parkingList");
+  list.innerHTML = "";
+
+  const filtered = area === "all"
+    ? parkingData
+    : parkingData.filter(p => p.area === area);
+
+  filtered.forEach(p => {
+    const marker = L.marker([p.lat, p.lng])
+      .addTo(map)
+      .bindPopup(`<b>${p.name}</b><br>${p.address}`);
+
+    markers.push(marker);
+
+    // Fixed Google Maps template literal URL syntax bug
+    list.innerHTML += `
+      <div class="parking-card">
+        <div>
+          <h3>${p.name}</h3>
+          <p>📍 ${p.address}</p>
+        </div>
+        <a target="_blank" class="map-btn" href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}">
+          Navigate via Google Maps ↗
+        </a>
+      </div>
+    `;
+  });
+  
+  // Auto-adjust map bounds to smoothly fit filtered markers on screen
+  if(markers.length > 0) {
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+}
+
+displayParking("all");
+
+document.getElementById("areaFilter").addEventListener("change", function() {
+  displayParking(this.value);
+});
+
+/* Toggle Mobile Hamburger Menu Function */
+function toggleMenu() {
+  const menuToggle = document.getElementById("mobileMenu");
+  const navLinks = document.getElementById("navLinks");
+  
+  menuToggle.classList.toggle("active");
+  navLinks.classList.toggle("show");
+}
+</script>
 
 </body>
 </html>
