@@ -1,147 +1,405 @@
+<?php
+// ===== 1. DATABASE CONNECTION & LIVE SLOTS FETCH =====
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "brar_parking";
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+
+// Active reservations ko live read karenge taaki index page par real data dikhe
+$booked_slots = [];
+if ($conn && !$conn->connect_error) {
+    $res = $conn->query("SELECT slot_id, driver_name FROM reservations");
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $booked_slots[intval($row['slot_id'])] = $row['driver_name'];
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="project.css">
+    <title>Safe & Secure Parking System | Brar Parking</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== AI SMART PARKING HIGH-LEVEL GLASSMORPHISM UI UPGRADE ===== */
+        .live-status {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            perspective: 1000px;
+        }
+
+        .status-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 16px;
+            min-width: 160px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* Rotation Animation Effect when content updates */
+        .status-box.rotate-effect {
+            transform: rotateX(360deg);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .status-box h3 {
+            margin: 0 0 6px 0;
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status-box .slot-loc {
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 0 0 12px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-box p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Pulsing Dot Effects for realistic AI look */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .status-dot.green { background-color: #16a34a; box-shadow: 0 0 12px #16a34a; }
+        .status-dot.green::after {
+            content: ''; width: 100%; height: 100%; border-radius: 50%; background: #16a34a;
+            position: absolute; animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        .status-dot.red { background-color: #dc2626; box-shadow: 0 0 12px #dc2626; }
+        .status-dot.red::after {
+            content: ''; width: 100%; height: 100%; border-radius: 50%; background: #dc2626;
+            position: absolute; animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+
+        .text-green { color: #10b981; }
+        .text-red { color: #f43f5e; }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-      <div class="logo">
-        <img src="brar.png" alt="logo">
-      </div>
-      <ul class="menu">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="find parking.html">Find Parking</a></li>
+<nav class="navbar" id="mainNavbar">
+    <div class="logo">Brar Parking</div>
+    
+    <div class="menu-toggle" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </div>
+
+    <ul class="nav-links" id="navLinksMenu">
+        <li><a href="#" onclick="checkLogin(event, '#')">Home</a></li>
+        <li><a href="ambala.php" onclick="checkLogin(event, 'ambala.php')">Ambala Location</a></li>
+        <li><a href="reviews.php" onclick="checkLogin(event, 'About.php')">About</a></li>
+        <li><a href="s.php" onclick="checkLogin(event, 's.php')">Slots</a></li>
+        <li><a href="contact.php" onclick="checkLogin(event, 'contact.php')">Contact</a></li>
+        <li><button id="accountNavBtn" class="account-btn" onclick="handleAccountClick(event)">Account</button></li>
+    </ul>
+</nav>
+
+<div id="authModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="formTitle">Register</h2>
         
-        <li><a href="slots.html">Slots</a></li>
-        
-        <li><a href="Contact.html">Contact</a></li> 
-      </ul>
+        <form id="registerForm" onsubmit="registerUser(event)">
+            <input type="text" id="regName" placeholder="Full Name" required>
+            <input type="email" id="regEmail" placeholder="Email Address" required>
+            <input type="password" id="regPassword" placeholder="Password" required>
+            <button type="submit" class="submit-btn">Register & Proceed</button>
+            <p>Already have an account? <span class="switch-link" onclick="showLogin()">Login here</span></p>
+        </form>
 
-    <div class="auth-buttons">
-  <button class="register">Register</button>
-  <button class="login">Login</button>
-</div>  
-     </nav>
-
-<section class="hero">
-  <div class="slider">
-    <img src="https://images.unsplash.com/photo-1710905283648-252d5711802c?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide active">
-    <img src="https://images.unsplash.com/photo-1597985933882-b4c6a08857a8?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide">
-    <img src="https://images.unsplash.com/photo-1720166671019-744dcef65d05?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="slide">
-    <img src="https://static.vecteezy.com/system/resources/thumbnails/009/694/013/original/aerial-view-high-angle-footage-of-modern-car-park-in-the-building-and-roof-top-at-city-centre-of-luton-town-of-england-uk-video.jpg" class="slide">
-  </div>
-
-  <div class="hero-content">
-    <h1>Safe & Secure Parking System</h1>
-    <p>Book Smart Parking in Seconds – Anywhere in Ambala</p>
-    <button class="btn"><a href="slots.html">Book Now</a></button>
-  </div>
-</section>
-
-<section class="feature">
-  <div class="box">
-    <h3>Easy Booking</h3>
-    <p>Book parking in just 2 clicks</p>  
-  </div>
-
-  <div class="box">
-    <h3>24/7 Security</h3>
-    <p>CCTV & Guard Protection</p>
-  </div>
-
-  <div class="box">
-    <h3>Live Availability</h3>
-    <p>Check slots in real time</p>
-  </div>
-</section>
-<section class="about-system">
-  <h2>About Online Parking System</h2>
-  <p class="about-text">
-    The Online Parking System is a smart web-based solution designed to help users
-    find and book parking slots easily. This system reduces traffic congestion,
-    saves time, and provides a safe and secure parking experience for vehicle owners.
-  </p>
-
-  <div class="about-cards">
-    <div class="about-box">
-      <h3>🚗 Problem</h3>
-      <p>
-        Finding parking in busy areas is time-consuming and stressful.
-        Drivers often waste fuel and time searching for available slots.
-      </p>
+        <form id="loginForm" onsubmit="loginUser(event)" style="display: none;">
+            <input type="email" id="loginEmail" placeholder="Email Address" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit" class="submit-btn">Login & Proceed</button>
+            <p>Don't have an account? <span class="switch-link" onclick="showRegister()">Register here</span></p>
+        </form>
     </div>
-
-    <div class="about-box">
-      <h3>💡 Solution</h3>
-      <p>
-        Our Online Parking System allows users to check live availability,
-        reserve parking slots online, and park without hassle.
-      </p>
-    </div>
-
-    <div class="about-box">
-      <h3>🎯 Objective</h3>
-      <p>
-        To provide a simple, fast, and secure parking management system
-        for smart cities and modern infrastructure.
-      </p>
-    </div>
-  </div>
-</section>
-
-
-<!-- Register Popup Modal -->
-<div id="registerModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Register</h2>
-
-    <form id="registerForm">
-      <input type="text" placeholder="Full Name" required>
-      <input type="email" placeholder="Email" required>
-      <input type="tel" placeholder="Phone Number" required>
-      <input type="password" placeholder="Password" required>
-
-      <button type="submit" class="submit-btn">Submit</button>
-    </form>
-  </div>
 </div>
 
-<!-- Success Popup -->
-<div id="successModal" class="modal">
-  <div class="modal-content">
-    <h2>🎉 Registration Successful!</h2>
-    <p>Your details have been submitted.</p>
-    <button id="okBtn" class="submit-btn">OK</button>
-  </div>
-</div>
+    <section class="hero">
+        <video autoplay muted loop playsinline class="bg-video">
+            <source src="mp3.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content">
+            <h1>Safe & Secure Parking System</h1>
+            <p>Smart online parking booking website with secure slots, fast booking and 24/7 parking availability for users.</p>
+            <div class="hero-buttons">
+                <button class="book-btn" onclick="checkLogin(event, 's.php')">Book Parking</button>
+                <button class="learn-btn">Learn More</button>
+            </div>
+        </div>
+    </section>
 
-<!-- Login Popup Modal -->
-<div id="loginModal" class="modal">
-  <div class="modal-content">
-    <span class="close login-close">&times;</span>
-    <h2>Login</h2>
+    <section class="features-section">
+        <div class="section-title">
+            <h2>Smart Parking Features</h2>
+            <p>Modern online parking system with secure booking, live parking slots and fast access.</p>
+        </div>
+        <div class="features-container">
+            <div class="feature-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Easy Booking">
+                <h3>Easy Booking</h3>
+                <p>Users can book parking slots online in just one click.</p>
+            </div>
+            <div class="feature-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Secure Parking">
+                <h3>Secure Parking</h3>
+                <p>24/7 security cameras and safe parking environment.</p>
+            </div>
+            <div class="feature-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Live Location">
+                <h3>Live Location</h3>
+                <p>Find parking locations easily with live directions.</p>
+            </div>
+        </div>
+    </section>
 
-    <form id="loginForm">
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Password" required>
+    <section class="video-section">
+        <div class="video-content">
+            <h2>Smart Parking Experience</h2>
+            <p>Watch how our secure parking management system works for users and vehicles.</p>
+        </div>
+        <div class="video-box">
+            <video autoplay muted loop playsinline>
+                <source src="car.mp4" type="video/mp4">
+            </video>
+        </div>
+    </section>
 
-      <button type="submit" class="submit-btn">Login</button>
-    </form>
-  </div>
-</div>
+    <section class="gallery-section">
+        <div class="section-title">
+            <h2>Parking Gallery</h2>
+            <p>Modern parking areas and premium smart parking slots.</p>
+        </div>
+        <div class="gallery-container">
+            <img src="indain1.jpg" alt="Gallery 1">
+            <img src="img4.jpg" alt="Gallery 2">
+            <img src="img.jpg" alt="Gallery 3">
+        </div>
+    </section>
 
+    <section class="smart-parking-section">
+        <div class="smart-left">
+            <span class="live-badge">● LIVE AI MONITORING</span>
+            <h2>AI Smart Parking Experience</h2>
+            <p>Advanced parking technology with live slot monitoring, smart vehicle detection and real-time database verification updates.</p>
+            
+            <div class="live-status">
+                <div class="status-box" id="aiBox0">
+                    </div>
+                <div class="status-box" id="aiBox1">
+                    </div>
+                <div class="status-box" id="aiBox2">
+                    </div>
+            </div>
+            
+            <div class="smart-buttons">
+                <button class="smart-btn" onclick="checkLogin(event, 's.php')">Explore Parking</button>
+                <button class="video-btn">Watch Demo</button>
+            </div>
+        </div>
+        <div class="smart-right">
+            <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=1200&auto=format&fit=crop" class="main-img" alt="Smart Parking">
+            <div class="floating-card">
+                <h3>Parking Security</h3>
+                <p>AI Camera Monitoring Active</p>
+            </div>
+        </div>
+    </section>
 
-     <footer>2026 Online Parking System
-      <div class="developer">
-      <p class="develop">Developer with by <span>[Taranjeet Singh]</span></p>
-      </div>
-     </footer>
-     
+<section class="auto-review-section">
+    <div class="review-heading">
+        <span>● LIVE USER FEEDBACK</span>
+        <h2>Customer Parking Reviews</h2>
+        <p>Real-time reviews from active parking users.</p>
+    </div>
+    <div class="review-main-box">
+        <div class="review-form-box">
+            <h3>Post Your Review</h3>
+            <input type="text" id="userName" placeholder="Enter Your Name">
+            <textarea id="userReview" placeholder="Write your parking experience..."></textarea>
+            <button onclick="addReview()">
+                <i class="fa-solid fa-paper-plane"></i>
+                Submit Review
+            </button>
+        </div>
+        <div class="review-live-box">
+            <div class="review-scroll" id="reviewScroll"></div>
+        </div>
+    </div>
+</section>
 
-     <script src="project.js"></script>
+    <footer class="main-footer">
+        <div class="footer-top-grid">
+            <div class="footer-info-col">
+                <h2 class="footer-brand-logo">Brar Parking</h2>
+                <p>Providing cutting-edge AI smart cloud parking systems across Ambala. Book secure slots, enjoy instant digital receipts, and secure absolute peace of mind.</p>
+                <div class="footer-social-links">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-links-col">
+                <h3>Quick Navigation</h3>
+                <ul>
+                    <li><a href="#" onclick="checkLogin(event, '#')">Home Hub</a></li>
+                    <li><a href="ambala.php" onclick="checkLogin(event, 'ambala.php')">Ambala Slots Map</a></li>
+                    <li><a href="s.php" onclick="checkLogin(event, 's.php')">Active Status</a></li>
+                    <li><a href="contact.php" onclick="checkLogin(event, 'contact.php')">Support Desk</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-col">
+                <h3>Active Support Areas</h3>
+                <ul>
+                    <li><a href="#">Ambala City Junction</a></li>
+                    <li><a href="#">Ambala Cantt Multi-Level</a></li>
+                    <li><a href="#">Sadar Commercial Bazaar</a></li>
+                    <li><a href="#">Model Town Sector Plots</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact-col">
+                <h3>Corporate Desk</h3>
+                <p><i class="fa-solid fa-envelope"></i> support@brarparking.com</p>
+                <p><i class="fa-solid fa-phone-volume"></i> +91 98765 43210</p>
+                <p><i class="fa-solid fa-location-dot"></i> Ambala City, Haryana, India</p>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <p>&copy; 2026 Online Parking System. All rights reserved.</p>
+            <div class="developer-credit">
+                <p>Developed with <i class="fa-solid fa-heart" style="color: #ef4444;"></i> by <span>Taranjeet Singh</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="project.js"></script>
+
+    <script>
+    // 1. Array mapping list matching exactly your slots page layout
+    const allParkingLocations = [
+        { id: 1, name: "Slot A1", loc: "Ambala City Railway Station" },
+        { id: 2, name: "Slot B2", loc: "Sadar Multilevel Parking" },
+        { id: 3, name: "Slot C3", loc: "Kapra Market Lot" },
+        { id: 4, name: "Slot D4", loc: "Shalimar Market Base" },
+        { id: 5, name: "Slot E5", loc: "Main Bus Stand Yard" },
+        { id: 6, name: "Slot F6", loc: "Civil Hospital Compound" },
+        { id: 7, name: "Slot G7", loc: "Judicial Court Complex" },
+        { id: 8, name: "Slot H8", loc: "Mall Road Premium Parking" },
+        { id: 9, name: "Slot I9", loc: "Wholesale Anaj Mandi Lot" },
+        { id: 10, name: "Slot J10", loc: "Galaxy Mall Grid" },
+        { id: 11, name: "Slot K11", loc: "Hartron Skill Hub Complex" },
+        { id: 12, name: "Slot L12", loc: "War Heroes Stadium Yard" },
+        { id: 13, name: "Slot M13", loc: "Cloth Market Premium Hub" },
+        { id: 14, name: "Slot N14", loc: "Polytechnic College Line" },
+        { id: 15, name: "Slot O15", loc: "Ambala Cantt Junction West" },
+        { id: 16, name: "Slot P16", loc: "Prem Nagar Public Yard" },
+        { id: 17, name: "Slot Q17", loc: "Model Town Central Market" },
+        { id: 18, name: "Slot R18", loc: "Vividh Bharti Office Strip" },
+        { id: 19, name: "Slot S19", loc: "Aggarsain Chowk Commercial" },
+        { id: 20, name: "Slot T20", loc: "King Fisher Resort Annex" }
+    ];
+
+    // 2. Fetching booked reservation slots dictionary from PHP backend
+    const databaseBookedMap = <?php echo json_encode($booked_slots); ?>;
+    
+    let baseTrackIndex = 0;
+
+    function renderRotatorPanel() {
+        for (let i = 0; i < 3; i++) {
+            // Loop round items array safely inside bounds
+            let targetItemIndex = (baseTrackIndex + i) % allParkingLocations.length;
+            let targetSlot = allParkingLocations[targetItemIndex];
+            
+            let boxElement = document.getElementById(`aiBox${i}`);
+            if(!boxElement) continue;
+
+            // Check dynamic booking inside map registry
+            let isOccupied = databaseBookedMap.hasOwnProperty(targetSlot.id);
+            let driverName = isOccupied ? databaseBookedMap[targetSlot.id] : "";
+
+            // Add flip rotation visual animation class trigger
+            boxElement.classList.add('rotate-effect');
+
+            // Insert matching text status context
+            setTimeout(() => {
+                if (isOccupied) {
+                    boxElement.innerHTML = `
+                        <h3>${targetSlot.name}</h3>
+                        <div class="slot-loc">📍 ${targetSlot.loc}</div>
+                        <p class="text-red"><span class="status-dot red"></span> Occupied</p>
+                        <div style="font-size:11px; margin-top:5px; color:#ef4444; font-weight:bold;">👤 By: ${driverName}</div>
+                    `;
+                } else {
+                    boxElement.innerHTML = `
+                        <h3>${targetSlot.name}</h3>
+                        <div class="slot-loc">📍 ${targetSlot.loc}</div>
+                        <p class="text-green"><span class="status-dot green"></span> Available</p>
+                        <div style="font-size:11px; margin-top:5px; color:#10b981; font-weight:bold;">🟢 Ready to Book</div>
+                    `;
+                }
+            }, 300); // sync text right in the middle of card flip transition
+
+            // Remove class so animation can be triggered again next time
+            setTimeout(() => {
+                boxElement.classList.remove('rotate-effect');
+            }, 600);
+        }
+
+        // Shift next slots step index window ahead
+        baseTrackIndex = (baseTrackIndex + 3) % allParkingLocations.length;
+    }
+
+    // Run first step and set interval loop execution for every 4 seconds
+    document.addEventListener("DOMContentLoaded", () => {
+        renderRotatorPanel();
+        setInterval(renderRotatorPanel, 4000);
+    });
+    </script>
 </body>
 </html>
